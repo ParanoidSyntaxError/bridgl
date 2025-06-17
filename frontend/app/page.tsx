@@ -1,4 +1,5 @@
-import { AlertTriangle, Hexagon, Shield, Zap } from "lucide-react"
+import { Hexagon } from "lucide-react";
+import Link from "next/link";
 
 export default function BridglLanding() {
     const bridgeHacks = [
@@ -42,12 +43,12 @@ export default function BridglLanding() {
                     <div className="container mx-auto px-6 py-4">
                         <nav className="flex justify-between items-center">
                             <div className="text-4xl font-bold tracking-wide">BRIDGL</div>
-                            <a
+                            <Link
                                 href="#"
                                 className="bg-black text-white px-8 py-1 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600 inline-block"
                             >
                                 START BRIDGLING
-                            </a>
+                            </Link>
                         </nav>
                     </div>
                 </header>
@@ -212,9 +213,9 @@ export default function BridglLanding() {
                         </div>
 
                         <div className="mt-16 text-center">
-                            <a href="#" className="bg-black text-white px-12 py-4 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600">
+                            <Link href="#" className="bg-black text-white px-12 py-4 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600">
                                 START BRIDGLING
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </section>
@@ -227,15 +228,15 @@ export default function BridglLanding() {
                                 <p className="font-mono text-sm">BRIDGL. MOST SECURE BRIDGE EVER.</p>
                             </div>
                             <div className="flex space-x-8 text-sm">
-                                <a href="https://x.com/bridgldotcom" className="hover:text-red-600 transition-colors">
+                                <Link href="https://x.com/bridgldotcom" className="hover:text-red-600 transition-colors">
                                     TWITTER
-                                </a>
-                                <a href="https://github.com/ParanoidSyntaxError/bridgl" className="hover:text-red-600 transition-colors">
+                                </Link>
+                                <Link href="https://github.com/ParanoidSyntaxError/bridgl" className="hover:text-red-600 transition-colors">
                                     GITHUB
-                                </a>
-                                <a href="/" className="hover:text-red-600 transition-colors">
+                                </Link>
+                                <Link href="/" className="hover:text-red-600 transition-colors">
                                     DEVFOLIO
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>
