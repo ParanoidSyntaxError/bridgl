@@ -41,7 +41,7 @@ export default function BridglLanding() {
                 <header className="border-b-2 border-black">
                     <div className="container mx-auto px-6 py-4">
                         <nav className="flex justify-between items-center">
-                            <div className="text-4xl font-bold tracking-wider">BRIDGL</div>
+                            <div className="text-4xl font-bold tracking-wide">BRIDGL</div>
                             <a
                                 href="#"
                                 className="bg-black text-white px-8 py-1 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600 inline-block"
@@ -224,16 +224,16 @@ export default function BridglLanding() {
                     <div className="container mx-auto px-6">
                         <div className="flex flex-col md:flex-row justify-between items-center">
                             <div className="mb-4 md:mb-0">
-                                <p className="font-mono text-sm">BRIDGL. SECURE BY DESIGN.</p>
+                                <p className="font-mono text-sm">BRIDGL. MOST SECURE BRIDGE EVER.</p>
                             </div>
                             <div className="flex space-x-8 text-sm">
-                                <a href="#" className="hover:text-red-600 transition-colors">
+                                <a href="https://x.com/bridgldotcom" className="hover:text-red-600 transition-colors">
                                     TWITTER
                                 </a>
-                                <a href="#" className="hover:text-red-600 transition-colors">
+                                <a href="https://github.com/ParanoidSyntaxError/bridgl" className="hover:text-red-600 transition-colors">
                                     GITHUB
                                 </a>
-                                <a href="#" className="hover:text-red-600 transition-colors">
+                                <a href="/" className="hover:text-red-600 transition-colors">
                                     DEVFOLIO
                                 </a>
                             </div>

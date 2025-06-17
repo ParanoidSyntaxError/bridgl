@@ -11,6 +11,9 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
 	title: "BRIDGL",
 	description: "The most secure bridge ever",
+	icons: {
+		icon: "bridgl-logo.png",
+	},
 };
 
 export default function RootLayout({
