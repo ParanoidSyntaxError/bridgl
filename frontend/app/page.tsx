@@ -42,12 +42,12 @@ export default function BridglLanding() {
                 <header className="border-b-2 border-black">
                     <div className="container mx-auto px-6 py-4">
                         <nav className="flex justify-between items-center">
-                            <div className="text-4xl font-bold tracking-wide">BRIDGL</div>
+                            <div className="text-3xl font-bold tracking-wide">BRIDGL</div>
                             <Link
                                 href="#"
                                 className="bg-black text-white px-8 py-1 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600 inline-block"
                             >
-                                START BRIDGLING
+                                LAUNCH
                             </Link>
                         </nav>
                     </div>
@@ -76,11 +76,11 @@ export default function BridglLanding() {
                     </div>
 
                     {/* Right side vertical line */}
-                    <div className="absolute top-0 right-16 w-[2px] h-full bg-black"></div>
+                    <div className="sm:absolute top-0 right-16 w-[2px] h-full bg-black"></div>
 
                     <div className="container mx-auto px-6">
                         <div className="max-w-4xl relative">
-                            <h1 className="px-4 bg-red-600 text-white text-8xl md:text-9xl font-black tracking-tighter mb-8">
+                            <h1 className="px-4 bg-red-600 text-white text-7xl md:text-9xl font-black tracking-tighter mb-8">
                                 BRIDGL
                             </h1>
                             <div className="border-l-4 border-red-600 pl-6 mb-12">
