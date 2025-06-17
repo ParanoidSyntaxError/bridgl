@@ -9,13 +9,13 @@ export default function BridglLanding() {
             description: "ITS SO OVER",
         },
         {
-            name: "Wormhole",
-            amount: "$325M",
+            name: "Poly Network",
+            amount: "$611M",
             description: "DONT LOOK AT THE CHART BROS",
         },
         {
-            name: "Poly Network",
-            amount: "$611M",
+            name: "Wormhole",
+            amount: "$325M",
             description: "BRB BUYING ROPE",
         },
         {
