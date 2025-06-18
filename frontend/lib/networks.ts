@@ -1,57 +1,27 @@
 export interface Token {
-    name: string
-    symbol: string
-    address: string
+    name: string;
+    symbol: string;
+    address: string;
 }
 
 export interface Network {
-    name: string
-    symbol: string
-    chainId: number
+    name: string;
+    symbol: string;
+    chainSelector: string;
 }
 
-export const supportedNetworks: Network[] = [
-    { name: "Ethereum", symbol: "ETH", chainId: 1 },
-    { name: "Base", symbol: "BASE", chainId: 8453 },
-    { name: "Arbitrum", symbol: "ARB", chainId: 42161 },
-    { name: "Optimism", symbol: "OP", chainId: 10 },
-    { name: "Avalanche", symbol: "AVAX", chainId: 43114 },
-    { name: "Polygon", symbol: "POL", chainId: 137 },
+export const testnetNetworks: Network[] = [
+    { name: "Ethereum Sepolia", symbol: "ETH", chainSelector: "16015286601757825753" },
+    { name: "Solana Devnet", symbol: "SOL", chainSelector: "16423721717087811551" },
+    { name: "Base Sepolia", symbol: "BASE", chainSelector: "10344971235874465080" },
+    { name: "Arbitrum Sepolia", symbol: "ARB", chainSelector: "3478487238524512106" },
+    { name: "OP Sepolia", symbol: "OP", chainSelector: "5224473277236331295" },
+    { name: "Avalanche Fuji", symbol: "AVAX", chainSelector: "14767482510784806043" },
+    { name: "Polygon Amoy", symbol: "POL", chainSelector: "16281711391670634445" },
 ];
 
-export const defaultTokens: Map<number, Token[]> = new Map([
-    [1, [
-        { symbol: "WETH", name: "Ethereum", address: "0x00" },
-        { symbol: "USDC", name: "USD Coin", address: "0x00" },
-        { symbol: "USDT", name: "Tether", address: "0x00" },
-        { symbol: "LINK", name: "Chainlink", address: "0x00" },
-    ]],
-    [8453, [
-        { symbol: "WETH", name: "Ethereum", address: "0x00" },
-        { symbol: "USDC", name: "USD Coin", address: "0x00" },
-        { symbol: "USDT", name: "Tether", address: "0x00" },
-        { symbol: "LINK", name: "Chainlink", address: "0x00" },
-    ]],
-    [42161, [
-        { symbol: "WETH", name: "Ethereum", address: "0x00" },
-        { symbol: "USDC", name: "USD Coin", address: "0x00" },
-        { symbol: "USDT", name: "Tether", address: "0x00" },
-        { symbol: "LINK", name: "Chainlink", address: "0x00" },
-    ]],
-    [10, [
-        { symbol: "WETH", name: "Ethereum", address: "0x00" },
-        { symbol: "USDC", name: "USD Coin", address: "0x00" },
-        { symbol: "USDT", name: "Tether", address: "0x00" },
-        { symbol: "LINK", name: "Chainlink", address: "0x00" },
-    ]],
-    [43114, [
-        { symbol: "WETH", name: "Ethereum", address: "0x00" },
-        { symbol: "USDC", name: "USD Coin", address: "0x00" },
-        { symbol: "USDT", name: "Tether", address: "0x00" },
-        { symbol: "LINK", name: "Chainlink", address: "0x00" },
-    ]],
-    [137, [
-        { symbol: "WETH", name: "Ethereum", address: "0x00" },
+export const testnetTokens: Map<string, Token[]> = new Map([
+    ["", [
         { symbol: "USDC", name: "USD Coin", address: "0x00" },
         { symbol: "USDT", name: "Tether", address: "0x00" },
         { symbol: "LINK", name: "Chainlink", address: "0x00" },

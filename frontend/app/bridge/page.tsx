@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ChevronDown, ArrowDown } from "lucide-react"
-import { defaultTokens, Network, supportedNetworks, Token } from "@/lib/networks"
+import { Network, testnetNetworks, testnetTokens, Token } from "@/lib/networks"
 
 export default function BridgePage() {
     const [fromNetwork, setFromNetwork] = useState<Network | null>(null)
@@ -75,7 +75,7 @@ export default function BridgePage() {
         // Remove the timeout-based blur handler since we're using click outside detection
     }
 
-    const filteredTokens = defaultTokens.get(fromNetwork?.chainId || -1) || [];
+    const filteredTokens = testnetTokens.get(fromNetwork?.chainSelector || "") || [];
 
     const isCustomAddress = tokenInput.startsWith("0x") && tokenInput.length > 10
 
@@ -163,7 +163,7 @@ export default function BridgePage() {
                                     </button>
                                     {showFromNetworks && (
                                         <div className="absolute top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
-                                            {supportedNetworks.map((network, index) => (
+                                            {testnetNetworks.map((network, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => {
@@ -327,7 +327,7 @@ export default function BridgePage() {
                                     </button>
                                     {showToNetworks && (
                                         <div className="absolute top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
-                                            {supportedNetworks.map((network, index) => (
+                                            {testnetNetworks.map((network, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => {
