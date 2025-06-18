@@ -1,3 +1,4 @@
+import { supportedNetworks } from "@/lib/networks";
 import { Hexagon } from "lucide-react";
 import Link from "next/link";
 
@@ -23,15 +24,6 @@ export default function BridglLanding() {
             amount: "$100M",
             description: "JUST",
         },
-    ]
-
-    const supportedNetworks = [
-        { name: "Ethereum", symbol: "ETH" },
-        { name: "Base", symbol: "BASE" },
-        { name: "Arbitrum", symbol: "ARB" },
-        { name: "Optimism", symbol: "OP" },
-        { name: "Avalanche", symbol: "AVAX" },
-        { name: "Polygon", symbol: "POL" },
     ];
 
     return (
@@ -44,7 +36,7 @@ export default function BridglLanding() {
                         <nav className="flex justify-between items-center">
                             <div className="text-3xl font-bold tracking-wide">BRIDGL</div>
                             <Link
-                                href="#"
+                                href="/bridge"
                                 className="bg-black text-white px-8 py-1 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600 inline-block"
                             >
                                 LAUNCH
@@ -213,7 +205,7 @@ export default function BridglLanding() {
                         </div>
 
                         <div className="mt-16 text-center">
-                            <Link href="#" className="bg-black text-white px-12 py-4 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600">
+                            <Link href="/bridge" className="bg-black text-white px-12 py-4 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600">
                                 START BRIDGLING
                             </Link>
                         </div>

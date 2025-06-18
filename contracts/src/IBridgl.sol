@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 interface IBridgl {
     error InsufficientFees(uint256 balance, uint256 amount);
-    error WrapperDoesNotExist(uint64 chainSelector, address bridgl, address underlyingToken);
+    error WrapperDoesNotExist(uint64 chainSelector, bytes bridglAddress, address underlyingToken);
 
     event NewWrapper(
         address indexed underlyingToken,
@@ -12,7 +12,7 @@ interface IBridgl {
     
     event SourceWrap(
         uint64 destinationChainSelector,
-        address indexed destinationAddress,
+        bytes indexed bridglAddress,
         address indexed underlyingToken,
         address from,
         address to,
@@ -27,7 +27,7 @@ interface IBridgl {
 
     event SourceUnwrap(
         uint64 destinationChainSelector,
-        address indexed destinationAddress,
+        bytes indexed bridglAddress,
         address indexed underlyingToken,
         address indexed wrapper,
         address from,
@@ -61,7 +61,8 @@ interface IBridgl {
     
     function wrap(
         uint64 destinationChainSelector,
-        address destinationAddress,
+        bytes memory bridglAddress,
+        bytes memory extraArgs,
         address underlyingToken,
         address to,
         uint256 amount
@@ -69,7 +70,8 @@ interface IBridgl {
 
     function unwrap(
         uint64 destinationChainSelector,
-        address destinationAddress,
+        bytes memory bridglAddress,
+        bytes memory extraArgs,
         address underlyingToken,
         address to,
         uint256 amount
@@ -79,7 +81,7 @@ interface IBridgl {
 
     function wrapper(
         uint64 chainSelector,
-        address bridgl,
+        bytes memory bridglAddress,
         address underlyingToken
     ) external view returns (address);
 }

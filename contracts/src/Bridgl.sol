@@ -17,7 +17,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
     address private immutable _wrapperImplementation;
 
     // Chain selector -> Bridgl address -> Underlying token -> Wrapped token
-    mapping(uint64 => mapping(address => mapping(address => address))) private _wrappedTokens;
+    mapping(uint64 => mapping(bytes => mapping(address => address))) private _wrappedTokens;
 
     constructor(
         address ccipRouter
@@ -29,7 +29,8 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
     function wrap(
         uint64 destinationChainSelector,
-        address destinationAddress,
+        bytes memory bridglAddress,
+        bytes memory extraArgs,
         address underlyingToken,
         address to,
         uint256 amount
@@ -40,7 +41,8 @@ contract Bridgl is CCIPReceiver, IBridgl {
         string memory wrappedSymbol = string(abi.encodePacked("b", IERC20Metadata(underlyingToken).symbol()));
 
         Client.EVM2AnyMessage memory evm2AnyMessage = _buildMessage(
-            destinationAddress,
+            bridglAddress,
+            extraArgs,
             MessageData({
                 selector: 0,
                 data: abi.encode(WrapParams({
@@ -67,7 +69,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
         emit SourceWrap(
             destinationChainSelector,
-            destinationAddress,
+            bridglAddress,
             underlyingToken,
             msg.sender,
             to,
@@ -80,21 +82,23 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
     function unwrap(
         uint64 destinationChainSelector,
-        address destinationAddress,
+        bytes memory bridglAddress,
+        bytes memory extraArgs,
         address underlyingToken,
         address to,
         uint256 amount
     ) external payable override returns (bytes32) {
-        if (!_wrapperExists(destinationChainSelector, destinationAddress, underlyingToken)) {
-            revert WrapperDoesNotExist(destinationChainSelector, destinationAddress, underlyingToken);
+        if (!_wrapperExists(destinationChainSelector, bridglAddress, underlyingToken)) {
+            revert WrapperDoesNotExist(destinationChainSelector, bridglAddress, underlyingToken);
         }
 
-        address wrappedToken = _wrapper(destinationChainSelector, destinationAddress, underlyingToken);
+        address wrappedToken = _wrapper(destinationChainSelector, bridglAddress, underlyingToken);
 
         IBridglWrapper(wrappedToken).burn(msg.sender, amount);
 
         Client.EVM2AnyMessage memory evm2AnyMessage = _buildMessage(
-            destinationAddress,
+            bridglAddress,
+            extraArgs,
             MessageData({
                 selector: 1,
                 data: abi.encode(UnwrapParams({
@@ -119,7 +123,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
         emit SourceUnwrap(
             destinationChainSelector,
-            destinationAddress,
+            bridglAddress,
             underlyingToken,
             wrappedToken,
             msg.sender,
@@ -137,10 +141,10 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
     function wrapper(
         uint64 chainSelector,
-        address bridgl,
+        bytes memory bridglAddress,
         address underlyingToken
     ) external view override returns (address) {
-        return _wrapper(chainSelector, bridgl, underlyingToken);
+        return _wrapper(chainSelector, bridglAddress, underlyingToken);
     }
 
     function _ccipReceive(
@@ -156,7 +160,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
             _wrapTokens(
                 any2EvmMessage.sourceChainSelector, 
-                abi.decode(any2EvmMessage.sender, (address)), 
+                any2EvmMessage.sender, 
                 wrapParams.name,
                 wrapParams.symbol,
                 wrapParams.underlyingToken, 
@@ -166,7 +170,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
             emit DestinationWrap(
                 _wrapper(
                     any2EvmMessage.sourceChainSelector,
-                    abi.decode(any2EvmMessage.sender, (address)),
+                    any2EvmMessage.sender,
                     wrapParams.underlyingToken
                 ),
                 any2EvmMessage.messageId
@@ -188,14 +192,14 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
     function _wrapTokens(
         uint64 sourceChainSelector,
-        address sourceAddress,
+        bytes memory bridglAddress,
         string memory wrappedName,
         string memory wrappedSymbol,
         address underlyingToken,
         address to,
         uint256 amount
     ) internal {
-        address wrappedToken = _wrappedTokens[sourceChainSelector][sourceAddress][underlyingToken];
+        address wrappedToken = _wrappedTokens[sourceChainSelector][bridglAddress][underlyingToken];
 
         if (wrappedToken == address(0)) {
             wrappedToken = Clones.clone(_wrapperImplementation);
@@ -207,7 +211,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
                     underlyingToken,
                     address(this)
                 );
-            _wrappedTokens[sourceChainSelector][sourceAddress][underlyingToken] = wrappedToken;
+            _wrappedTokens[sourceChainSelector][bridglAddress][underlyingToken] = wrappedToken;
 
             emit NewWrapper(
                 underlyingToken,
@@ -228,35 +232,31 @@ contract Bridgl is CCIPReceiver, IBridgl {
 
     function _wrapper(
         uint64 chainSelector,
-        address bridgl,
+        bytes memory bridglAddress,
         address underlyingToken
     ) internal view returns (address) {
-        return _wrappedTokens[chainSelector][bridgl][underlyingToken];
+        return _wrappedTokens[chainSelector][bridglAddress][underlyingToken];
     }
 
     function _wrapperExists(
         uint64 chainSelector,
-        address bridgl,
+        bytes memory bridglAddress,
         address underlyingToken
     ) internal view returns (bool) {
-        return _wrapper(chainSelector, bridgl, underlyingToken) != address(0);
+        return _wrapper(chainSelector, bridglAddress, underlyingToken) != address(0);
     }
 
     function _buildMessage(
-        address destinationAddress,
+        bytes memory bridglAddress,
+        bytes memory extraArgs,
         MessageData memory params
     ) internal pure returns (Client.EVM2AnyMessage memory) {
         return
             Client.EVM2AnyMessage({
-                receiver: abi.encode(destinationAddress),
+                receiver: bridglAddress,
                 data: abi.encode(params),
                 tokenAmounts: new Client.EVMTokenAmount[](0),
-                extraArgs: Client._argsToBytes(
-                    Client.GenericExtraArgsV2({
-                        gasLimit: 500_000,
-                        allowOutOfOrderExecution: true
-                    })
-                ),
+                extraArgs: extraArgs,
                 feeToken: address(0)
             });
     }
