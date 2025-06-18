@@ -1,4 +1,4 @@
-import { testnetNetworks } from "@/lib/networks";
+import { mainnetNetworks } from "@/lib/networks";
 import { Hexagon } from "lucide-react";
 import Link from "next/link";
 
@@ -168,7 +168,7 @@ export default function BridglLanding() {
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                            {testnetNetworks.map((network, index) => (
+                            {mainnetNetworks.map((network, index) => (
                                 <div key={index} className="text-center">
                                     <div className="aspect-square border-2 border-black bg-white p-3 relative flex flex-col items-center justify-center overflow-hidden">
                                         {/* Grid pattern background */}

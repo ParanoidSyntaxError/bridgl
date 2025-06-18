@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ChevronDown, ArrowDown } from "lucide-react"
-import { Network, testnetNetworks, testnetTokens, Token } from "@/lib/networks"
+import { Network, testnetNetworks } from "@/lib/networks"
+import { testnetTokens, Token } from "@/lib/tokens"
 
 export default function BridgePage() {
     const [fromNetwork, setFromNetwork] = useState<Network | null>(null)
@@ -162,7 +163,7 @@ export default function BridgePage() {
                                         <ChevronDown className={`w-4 h-4 transition-transform ${showFromNetworks ? "rotate-180" : ""}`} />
                                     </button>
                                     {showFromNetworks && (
-                                        <div className="absolute top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
+                                        <div className="absolute h-36 overflow-y-scroll top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
                                             {testnetNetworks.map((network, index) => (
                                                 <button
                                                     key={index}
@@ -326,7 +327,7 @@ export default function BridgePage() {
                                         <ChevronDown className={`w-5 h-5 transition-transform ${showToNetworks ? "rotate-180" : ""}`} />
                                     </button>
                                     {showToNetworks && (
-                                        <div className="absolute top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
+                                        <div className="absolute h-36 overflow-y-scroll top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
                                             {testnetNetworks.map((network, index) => (
                                                 <button
                                                     key={index}
