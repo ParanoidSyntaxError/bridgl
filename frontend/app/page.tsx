@@ -31,18 +31,22 @@ export default function BridglLanding() {
             {/* Content */}
             <div className="relative z-10">
                 {/* Header */}
-                <header className="border-b-2 border-black">
-                    <div className="container mx-auto px-6 py-4">
-                        <nav className="flex justify-between items-center">
-                            <div className="text-3xl font-bold tracking-wide">BRIDGL</div>
+                <header className="border-b-2 border-black bg-white relative h-16">
+                    <nav className="h-full px-6 flex justify-between items-center">
+                        <div className="text-3xl font-bold tracking-wide">
+                            <Link href="/" className="hover:text-red-600 transition-colors">
+                                BRIDGL
+                            </Link>
+                        </div>
+                        <div>
                             <Link
                                 href="/bridge"
                                 className="bg-black text-white px-8 py-1 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600 inline-block"
                             >
                                 LAUNCH
                             </Link>
-                        </nav>
-                    </div>
+                        </div>
+                    </nav>
                 </header>
 
                 {/* Title Section */}
@@ -100,7 +104,7 @@ export default function BridglLanding() {
                                 </h2>
                             </div>
                             <p className="text-lg text-gray-600 max-w-xl">
-                                Stop getting rekt. Over <span className="text-red-600 font-bold">$2.5 BILLION</span> lost to bridge 
+                                Stop getting rekt. Over <span className="text-red-600 font-bold">$2.5 BILLION</span> lost to bridge
                                 hacks. Just BRIDGL.
                             </p>
                         </div>

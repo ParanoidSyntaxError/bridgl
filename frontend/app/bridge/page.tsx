@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { ChevronDown, ArrowDown } from "lucide-react"
 import { Network, testnetNetworks } from "@/lib/networks"
 import { testnetTokens, Token } from "@/lib/tokens"
+import Link from "next/link"
 
 export default function BridgePage() {
     const [fromNetwork, setFromNetwork] = useState<Network | null>(null)
@@ -108,6 +109,20 @@ export default function BridgePage() {
                     />
                 ))}
             </div>
+
+            {/* Header */}
+            <header className="border-b-2 border-black bg-white relative h-16">
+                <nav className="h-full px-6 flex justify-between items-center">
+                    <div className="text-3xl font-bold tracking-wide">
+                        <Link href="/" className="hover:text-red-600 transition-colors">
+                            BRIDGL
+                        </Link>
+                    </div>
+                    <div>
+
+                    </div>
+                </nav>
+            </header>
 
             {/* Main Content */}
             <div className="container mx-auto px-6 py-12 relative z-10">
