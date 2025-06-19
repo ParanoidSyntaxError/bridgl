@@ -64,16 +64,8 @@ export default function BridgePage() {
 
     const handleTokenSelect = (token: Token) => {
         setSelectedToken(token)
-        setTokenInput(`${token.symbol} - ${token.name}`)
+        setTokenInput(`${token.symbol}`)
         setShowTokenDropdown(false)
-    }
-
-    const handleTokenInputFocus = () => {
-        setShowTokenDropdown(true)
-    }
-
-    const handleTokenInputBlur = () => {
-        // Remove the timeout-based blur handler since we're using click outside detection
     }
 
     const filteredTokens = testnetTokens.get(fromNetwork?.chainSelector || "") || [];
@@ -117,18 +109,6 @@ export default function BridgePage() {
                 ))}
             </div>
 
-            {/* Header */}
-            <header className="border-b-2 border-black relative z-10">
-                <div className="container mx-auto px-6 py-4">
-                    <nav className="flex justify-between items-center">
-                        <a href="/" className="text-sm tracking-wider hover:text-red-600 transition-colors">
-                            ← BACK TO BRIDGL
-                        </a>
-                        <div className="text-sm tracking-wider font-bold">SECURE BRIDGING PROTOCOL</div>
-                    </nav>
-                </div>
-            </header>
-
             {/* Main Content */}
             <div className="container mx-auto px-6 py-12 relative z-10">
                 {/* Bridge Form - Compact Single Card Design */}
@@ -153,11 +133,6 @@ export default function BridgePage() {
                                         className="w-full p-3 border-2 border-black bg-white text-left flex justify-between items-center hover:border-red-600 transition-colors"
                                     >
                                         <div className="flex items-center space-x-2">
-                                            {fromNetwork && (
-                                                <div className="w-6 h-6 border border-black bg-white flex items-center justify-center text-xs font-bold">
-                                                    {fromNetwork.symbol}
-                                                </div>
-                                            )}
                                             <span className="font-bold text-sm">{fromNetwork ? fromNetwork.name : "SELECT NETWORK"}</span>
                                         </div>
                                         <ChevronDown className={`w-4 h-4 transition-transform ${showFromNetworks ? "rotate-180" : ""}`} />
@@ -173,9 +148,6 @@ export default function BridgePage() {
                                                     }}
                                                     className="w-full p-2 text-left hover:bg-red-50 border-b border-black/10 last:border-b-0 flex items-center space-x-2"
                                                 >
-                                                    <div className="w-6 h-6 border border-black bg-white flex items-center justify-center text-xs font-bold">
-                                                        {network.symbol}
-                                                    </div>
                                                     <span className="font-bold text-sm">{network.name}</span>
                                                 </button>
                                             ))}
@@ -200,7 +172,6 @@ export default function BridgePage() {
                                                 setShowFromNetworks(false)
                                                 setShowToNetworks(false)
                                             }}
-                                            onBlur={handleTokenInputBlur}
                                             className="w-full p-3 pr-10 border-2 border-black bg-white font-mono text-xs focus:border-red-600 focus:outline-none"
                                         />
                                         <button
@@ -218,59 +189,20 @@ export default function BridgePage() {
                                         </button>
                                     </div>
 
-                                    {showTokenDropdown && (
+                                    {showTokenDropdown && filteredTokens.length > 0 && !isCustomAddress && (
                                         <div className="absolute top-full left-0 right-0 border-2 border-black bg-white z-50 max-h-40 overflow-y-auto mt-1 shadow-lg">
-                                            {filteredTokens.length > 0 ? (
-                                                <>
-                                                    <div className="p-1.5 bg-gray-50 border-b border-black/10">
-                                                        <span className="text-xs font-bold tracking-wider text-gray-600">DEFAULT TOKENS</span>
+                                            {filteredTokens.map((token, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleTokenSelect(token)}
+                                                    className="w-full p-2 text-left hover:bg-red-50 border-b border-black/10 last:border-b-0 flex items-center space-x-2"
+                                                >
+                                                    <div>
+                                                        <div className="font-bold text-sm">{token.symbol}</div>
+                                                        <div className="text-xs text-gray-600">{token.name}</div>
                                                     </div>
-                                                    {filteredTokens.map((token, index) => (
-                                                        <button
-                                                            key={index}
-                                                            onClick={() => handleTokenSelect(token)}
-                                                            className="w-full p-2 text-left hover:bg-red-50 border-b border-black/10 last:border-b-0 flex items-center space-x-2"
-                                                        >
-                                                            <div className="w-6 h-6 border border-black bg-white flex items-center justify-center text-xs font-bold">
-                                                                {token.symbol}
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-bold text-sm">{token.symbol}</div>
-                                                                <div className="text-xs text-gray-600">{token.name}</div>
-                                                            </div>
-                                                        </button>
-                                                    ))}
-                                                </>
-                                            ) : tokenInput.length > 0 ? (
-                                                <div className="p-3 text-center text-gray-500 text-xs">
-                                                    {isCustomAddress ? (
-                                                        <span className="text-green-600 font-bold">Custom token address detected</span>
-                                                    ) : (
-                                                        "No matching tokens found"
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="p-1.5 bg-gray-50 border-b border-black/10">
-                                                        <span className="text-xs font-bold tracking-wider text-gray-600">DEFAULT TOKENS</span>
-                                                    </div>
-                                                    {filteredTokens.map((token, index) => (
-                                                        <button
-                                                            key={index}
-                                                            onClick={() => handleTokenSelect(token)}
-                                                            className="w-full p-2 text-left hover:bg-red-50 border-b border-black/10 last:border-b-0 flex items-center space-x-2"
-                                                        >
-                                                            <div className="w-6 h-6 border border-black bg-white flex items-center justify-center text-xs font-bold">
-                                                                {token.symbol}
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-bold text-sm">{token.symbol}</div>
-                                                                <div className="text-xs text-gray-600">{token.name}</div>
-                                                            </div>
-                                                        </button>
-                                                    ))}
-                                                </>
-                                            )}
+                                                </button>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
@@ -317,11 +249,6 @@ export default function BridgePage() {
                                         className="w-full p-3 border-2 border-black bg-white text-left flex justify-between items-center hover:border-red-600 transition-colors"
                                     >
                                         <div className="flex items-center space-x-2">
-                                            {toNetwork && (
-                                                <div className="w-6 h-6 border border-black bg-white flex items-center justify-center text-xs font-bold">
-                                                    {toNetwork.symbol}
-                                                </div>
-                                            )}
                                             <span className="font-bold text-sm">{toNetwork ? toNetwork.name : "SELECT NETWORK"}</span>
                                         </div>
                                         <ChevronDown className={`w-5 h-5 transition-transform ${showToNetworks ? "rotate-180" : ""}`} />
@@ -337,9 +264,6 @@ export default function BridgePage() {
                                                     }}
                                                     className="w-full p-2 text-left hover:bg-red-50 border-b border-black/10 last:border-b-0 flex items-center space-x-2"
                                                 >
-                                                    <div className="w-6 h-6 border border-black bg-white flex items-center justify-center text-xs font-bold">
-                                                        {network.symbol}
-                                                    </div>
                                                     <span className="font-bold text-sm">{network.name}</span>
                                                 </button>
                                             ))}
@@ -361,7 +285,7 @@ export default function BridgePage() {
                                     disabled={!isFormValid()}
                                     className="w-full bg-black text-white px-6 py-3 text-base font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:border-black"
                                 >
-                                    BRIDGE TOKENS →
+                                    BRIDGE TOKENS
                                 </button>
                             </div>
                         </div>
