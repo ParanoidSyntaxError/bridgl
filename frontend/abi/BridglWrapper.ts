@@ -123,8 +123,8 @@ export const BridglWrapperAbi = [
       },
       {
         "name": "underlyingToken",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       },
       {
         "name": "initOwner",
@@ -290,8 +290,8 @@ export const BridglWrapperAbi = [
       },
       {
         "name": "",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "stateMutability": "view"
@@ -495,15 +495,5 @@ export const BridglWrapperAbi = [
         "internalType": "address"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "UnderlyingIsThisAddress",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "UnderlyingIsZeroAddress",
-    "inputs": []
   }
 ] as const;

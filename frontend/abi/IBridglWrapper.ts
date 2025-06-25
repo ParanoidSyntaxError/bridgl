@@ -105,8 +105,8 @@ export const IBridglWrapperAbi = [
       },
       {
         "name": "underlyingToken",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       },
       {
         "name": "initOwner",
@@ -213,8 +213,8 @@ export const IBridglWrapperAbi = [
       },
       {
         "name": "",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "stateMutability": "view"
@@ -268,15 +268,5 @@ export const IBridglWrapperAbi = [
       }
     ],
     "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "UnderlyingIsThisAddress",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "UnderlyingIsZeroAddress",
-    "inputs": []
   }
 ] as const;

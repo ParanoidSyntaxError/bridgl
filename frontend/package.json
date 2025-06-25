@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chainlink/ccip-js": "^0.2.4",
     "@dynamic-labs/ethereum": "^4.20.6",
     "@dynamic-labs/sdk-react-core": "^4.20.6",
     "@dynamic-labs/solana": "^4.20.6",

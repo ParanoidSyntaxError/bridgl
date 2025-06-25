@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC20, IERC20, IERC20Metadata} from "@openzeppelin/token/ERC20/ERC20.sol";
-import {SafeERC20} from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {Initializable} from "@openzeppelin/proxy/utils/Initializable.sol";
-import {Ownable} from "@openzeppelin/access/Ownable.sol";
+import {ERC20, IERC20, IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {IBridglWrapper} from "./IBridglWrapper.sol";
 
@@ -13,7 +13,7 @@ contract BridglWrapper is ERC20, Initializable, Ownable, IBridglWrapper {
     string private _symbol;
 
     uint64 private _underlyingChainSelector;
-    address private _underlyingToken;
+    bytes private _underlyingToken;
 
     constructor() ERC20("", "") Ownable(address(1)) {}
 
@@ -21,16 +21,9 @@ contract BridglWrapper is ERC20, Initializable, Ownable, IBridglWrapper {
         string memory initName,
         string memory initSymbol,
         uint64 underlyingChainSelector,
-        address underlyingToken,
+        bytes memory underlyingToken,
         address initOwner
     ) external override initializer {
-        if (underlyingToken == address(0)) {
-            revert UnderlyingIsZeroAddress();
-        }
-        if (underlyingToken == address(this)) {
-            revert UnderlyingIsThisAddress();
-        }
-
         _name = initName;
         _symbol = initSymbol;
 
@@ -48,7 +41,7 @@ contract BridglWrapper is ERC20, Initializable, Ownable, IBridglWrapper {
         return _symbol;
     }
 
-    function underlying() external view override returns (uint64, address) {
+    function underlying() external view override returns (uint64, bytes memory) {
         return (_underlyingChainSelector, _underlyingToken);
     }
     

@@ -2,26 +2,28 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ChevronDown, ArrowDown } from "lucide-react"
-import { Network, testnetNetworks } from "@/lib/networks"
-import { testnetTokens, Token } from "@/lib/tokens"
+import { Network, testnets } from "@/lib/networks"
 import Link from "next/link"
+import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core"
+import { wrap } from "@/lib/bridgl"
+import { testnetTokens, Token } from "@/lib/tokens"
 
 export default function BridgePage() {
+    const { primaryWallet } = useDynamicContext();
+
     const [fromNetwork, setFromNetwork] = useState<Network | null>(null)
     const [toNetwork, setToNetwork] = useState<Network | null>(null)
     const [tokenInput, setTokenInput] = useState("")
-    const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+    const [selectedToken, setSelectedToken] = useState<string | null>(null)
     const [amount, setAmount] = useState("")
     const [showFromNetworks, setShowFromNetworks] = useState(false)
     const [showToNetworks, setShowToNetworks] = useState(false)
     const [showTokenDropdown, setShowTokenDropdown] = useState(false)
 
-    // Refs for click outside detection
     const fromNetworkRef = useRef<HTMLDivElement>(null)
     const toNetworkRef = useRef<HTMLDivElement>(null)
     const tokenDropdownRef = useRef<HTMLDivElement>(null)
 
-    // Click outside handler
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node
@@ -55,7 +57,7 @@ export default function BridgePage() {
 
     const handleTokenInputChange = (value: string) => {
         setTokenInput(value)
-        setSelectedToken(null)
+        setSelectedToken(value)
 
         // Show dropdown when user starts typing or clicks
         if (value.length > 0 || showTokenDropdown) {
@@ -64,24 +66,44 @@ export default function BridgePage() {
     }
 
     const handleTokenSelect = (token: Token) => {
-        setSelectedToken(token)
+        setSelectedToken(token.address)
         setTokenInput(`${token.symbol}`)
         setShowTokenDropdown(false)
     }
 
-    const filteredTokens = testnetTokens.get(fromNetwork?.chainSelector || "") || [];
+    const defaultTokens = testnetTokens.get(fromNetwork?.chainSelector || BigInt("0")) || [];
 
-    const isCustomAddress = tokenInput.startsWith("0x") && tokenInput.length > 10
+    const isCustomAddress = tokenInput.startsWith("0x") && tokenInput.length > 10;
 
-    const handleBridge = () => {
-        // Bridge logic would go here
-        const tokenData = selectedToken || (isCustomAddress ? { address: tokenInput } : null)
-        console.log("Bridging:", {
-            token: tokenData,
-            amount,
-            fromNetwork,
-            toNetwork,
-        })
+    const handleBridge = async () => {
+        try {
+            if (!primaryWallet) {
+                console.log("No primary wallet");
+                return;
+            }
+
+            if (!fromNetwork || !toNetwork || !selectedToken) {
+                console.log("No network or token");
+                return;
+            }
+
+            const hash = await wrap(
+                primaryWallet,
+                fromNetwork,
+                toNetwork,
+                selectedToken,
+                primaryWallet.address,
+                amount
+            );
+            if (!hash) {
+                console.log("No hash");
+                return;
+            }
+
+            console.log("Bridge transaction hash:", hash);
+        } catch (error) {
+            console.error("Bridge error:", error);
+        }
     }
 
     const isFormValid = () => {
@@ -119,7 +141,9 @@ export default function BridgePage() {
                         </Link>
                     </div>
                     <div>
-
+                        <DynamicWidget
+                            innerButtonComponent={"Connect"}
+                        />
                     </div>
                 </nav>
             </header>
@@ -154,7 +178,7 @@ export default function BridgePage() {
                                     </button>
                                     {showFromNetworks && (
                                         <div className="absolute h-36 overflow-y-scroll top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
-                                            {testnetNetworks.map((network, index) => (
+                                            {testnets.values().toArray().map((network, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => {
@@ -204,9 +228,9 @@ export default function BridgePage() {
                                         </button>
                                     </div>
 
-                                    {showTokenDropdown && filteredTokens.length > 0 && !isCustomAddress && (
+                                    {showTokenDropdown && defaultTokens.length > 0 && !isCustomAddress && (
                                         <div className="absolute top-full left-0 right-0 border-2 border-black bg-white z-50 max-h-40 overflow-y-auto mt-1 shadow-lg">
-                                            {filteredTokens.map((token, index) => (
+                                            {defaultTokens.map((token, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => handleTokenSelect(token)}
@@ -270,7 +294,7 @@ export default function BridgePage() {
                                     </button>
                                     {showToNetworks && (
                                         <div className="absolute h-36 overflow-y-scroll top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
-                                            {testnetNetworks.map((network, index) => (
+                                            {testnets.values().toArray().map((network, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => {

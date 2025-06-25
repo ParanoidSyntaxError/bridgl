@@ -1,8 +1,8 @@
-import { mainnetNetworks } from "@/lib/networks";
+import { testnets } from "@/lib/networks";
 import { Hexagon } from "lucide-react";
 import Link from "next/link";
 
-export default function BridglLanding() {
+export default function HomePage() {
     const bridgeHacks = [
         {
             name: "Ronin Bridge",
@@ -149,7 +149,7 @@ export default function BridglLanding() {
 
                         <div className="mt-12 p-6 border-2 border-red-600 bg-red-50 relative">
                             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-red-600"></div>
-                            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-red-600"></div>
+                            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-red-600"></div>
                             <p className="text-center text-lg">
                                 <span className="font-bold text-red-600">DISCLAIMER:</span> Every other bridge sucks
                             </p>
@@ -162,17 +162,15 @@ export default function BridglLanding() {
                     <div className="container mx-auto px-6">
                         <div className="mb-16">
                             <h2 className="text-4xl md:text-6xl font-black mb-6">
-                                SUPPORTED
-                                <br />
-                                <span className="text-red-600">NETWORKS</span>
+                                SUPPORTED <span className="text-red-600">NETWORKS</span>
                             </h2>
                             <p className="text-lg text-gray-600 max-w-2xl">
-                                Bridge tokens across many of the most popular networks.
+                                Bridge across the most based networks.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                            {mainnetNetworks.map((network, index) => (
+                            {testnets.values().toArray().map((network, index) => (
                                 <div key={index} className="text-center">
                                     <div className="aspect-square border-2 border-black bg-white p-3 relative flex flex-col items-center justify-center overflow-hidden">
                                         {/* Grid pattern background */}
@@ -208,7 +206,7 @@ export default function BridglLanding() {
                             ))}
                         </div>
 
-                        <div className="mt-16 text-center">
+                        <div className="mt-22 text-center">
                             <Link href="/bridge" className="bg-black text-white px-12 py-4 tracking-wide text-lg font-bold hover:bg-red-600 transition-colors border-2 border-black hover:border-red-600">
                                 START BRIDGLING
                             </Link>

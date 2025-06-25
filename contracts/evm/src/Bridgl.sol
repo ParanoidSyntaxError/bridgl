@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {IRouterClient} from "@chainlink/ccip/interfaces/IRouterClient.sol";
-import {Client} from "@chainlink/ccip/libraries/Client.sol";
-import {CCIPReceiver} from "@chainlink/ccip/applications/CCIPReceiver.sol";
+import {IRouterClient} from "@chainlink/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import {Client} from "@chainlink/contracts/src/v0.8/ccip/libraries/Client.sol";
+import {CCIPReceiver} from "@chainlink/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
 
-import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
-import {IERC20Metadata} from "@openzeppelin/token/ERC20/extensions/IERC20Metadata.sol";
-import {SafeERC20} from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {Clones} from "@openzeppelin/proxy/Clones.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {BridglWrapper, IBridglWrapper} from "./token/BridglWrapper.sol";
 import {IBridgl} from "./IBridgl.sol";
@@ -17,7 +17,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
     address private immutable _wrapperImplementation;
 
     // Chain selector -> Bridgl address -> Underlying token -> Wrapped token
-    mapping(uint64 => mapping(bytes => mapping(address => address))) private _wrappedTokens;
+    mapping(uint64 => mapping(bytes => mapping(bytes => address))) private _wrappedTokens;
 
     constructor(
         address ccipRouter
@@ -32,7 +32,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
         bytes memory bridglAddress,
         bytes memory extraArgs,
         address underlyingToken,
-        address to,
+        bytes memory to,
         uint256 amount
     ) external payable override returns (bytes32) {
         SafeERC20.safeTransferFrom(IERC20(underlyingToken), msg.sender, address(this), amount);
@@ -48,7 +48,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
                 data: abi.encode(WrapParams({
                     name: wrappedName,
                     symbol: wrappedSymbol,
-                    underlyingToken: underlyingToken,
+                    underlyingToken: abi.encode(underlyingToken),
                     to: to,
                     amount: amount
                 }))
@@ -84,8 +84,8 @@ contract Bridgl is CCIPReceiver, IBridgl {
         uint64 destinationChainSelector,
         bytes memory bridglAddress,
         bytes memory extraArgs,
-        address underlyingToken,
-        address to,
+        bytes memory underlyingToken,
+        bytes memory to,
         uint256 amount
     ) external payable override returns (bytes32) {
         if (!_wrapperExists(destinationChainSelector, bridglAddress, underlyingToken)) {
@@ -142,7 +142,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
     function wrapper(
         uint64 chainSelector,
         bytes memory bridglAddress,
-        address underlyingToken
+        bytes memory underlyingToken
     ) external view override returns (address) {
         return _wrapper(chainSelector, bridglAddress, underlyingToken);
     }
@@ -158,13 +158,16 @@ contract Bridgl is CCIPReceiver, IBridgl {
         if(message.selector == 0) {
             WrapParams memory wrapParams = abi.decode(message.data, (WrapParams));
 
+            address to = abi.decode(wrapParams.to, (address));
+
             _wrapTokens(
                 any2EvmMessage.sourceChainSelector, 
                 any2EvmMessage.sender, 
                 wrapParams.name,
                 wrapParams.symbol,
                 wrapParams.underlyingToken, 
-                wrapParams.to, wrapParams.amount
+                to,
+                wrapParams.amount
             );
 
             emit DestinationWrap(
@@ -178,9 +181,12 @@ contract Bridgl is CCIPReceiver, IBridgl {
         } else {
             UnwrapParams memory unwrapParams = abi.decode(message.data, (UnwrapParams));
 
+            address underlyingToken = abi.decode(unwrapParams.underlyingToken, (address));
+            address to = abi.decode(unwrapParams.to, (address));
+
             _unwrapTokens(
-                unwrapParams.underlyingToken, 
-                unwrapParams.to, 
+                underlyingToken, 
+                to, 
                 unwrapParams.amount
             );
 
@@ -195,7 +201,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
         bytes memory bridglAddress,
         string memory wrappedName,
         string memory wrappedSymbol,
-        address underlyingToken,
+        bytes memory underlyingToken,
         address to,
         uint256 amount
     ) internal {
@@ -233,7 +239,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
     function _wrapper(
         uint64 chainSelector,
         bytes memory bridglAddress,
-        address underlyingToken
+        bytes memory underlyingToken
     ) internal view returns (address) {
         return _wrappedTokens[chainSelector][bridglAddress][underlyingToken];
     }
@@ -241,7 +247,7 @@ contract Bridgl is CCIPReceiver, IBridgl {
     function _wrapperExists(
         uint64 chainSelector,
         bytes memory bridglAddress,
-        address underlyingToken
+        bytes memory underlyingToken
     ) internal view returns (bool) {
         return _wrapper(chainSelector, bridglAddress, underlyingToken) != address(0);
     }

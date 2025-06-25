@@ -119,13 +119,13 @@ export const BridglAbi = [
       },
       {
         "name": "underlyingToken",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       },
       {
         "name": "to",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       },
       {
         "name": "amount",
@@ -168,8 +168,8 @@ export const BridglAbi = [
       },
       {
         "name": "to",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       },
       {
         "name": "amount",
@@ -202,8 +202,8 @@ export const BridglAbi = [
       },
       {
         "name": "underlyingToken",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [
@@ -266,9 +266,9 @@ export const BridglAbi = [
     "inputs": [
       {
         "name": "underlyingToken",
-        "type": "address",
+        "type": "bytes",
         "indexed": true,
-        "internalType": "address"
+        "internalType": "bytes"
       },
       {
         "name": "wrapper",
@@ -297,9 +297,9 @@ export const BridglAbi = [
       },
       {
         "name": "underlyingToken",
-        "type": "address",
+        "type": "bytes",
         "indexed": true,
-        "internalType": "address"
+        "internalType": "bytes"
       },
       {
         "name": "wrapper",
@@ -315,9 +315,9 @@ export const BridglAbi = [
       },
       {
         "name": "to",
-        "type": "address",
+        "type": "bytes",
         "indexed": false,
-        "internalType": "address"
+        "internalType": "bytes"
       },
       {
         "name": "amount",
@@ -364,9 +364,9 @@ export const BridglAbi = [
       },
       {
         "name": "to",
-        "type": "address",
+        "type": "bytes",
         "indexed": false,
-        "internalType": "address"
+        "internalType": "bytes"
       },
       {
         "name": "amount",
@@ -458,8 +458,8 @@ export const BridglAbi = [
       },
       {
         "name": "underlyingToken",
-        "type": "address",
-        "internalType": "address"
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ]
   }

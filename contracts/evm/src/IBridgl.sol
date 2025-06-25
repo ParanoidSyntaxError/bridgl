@@ -3,10 +3,10 @@ pragma solidity ^0.8.28;
 
 interface IBridgl {
     error InsufficientFees(uint256 balance, uint256 amount);
-    error WrapperDoesNotExist(uint64 chainSelector, bytes bridglAddress, address underlyingToken);
+    error WrapperDoesNotExist(uint64 chainSelector, bytes bridglAddress, bytes underlyingToken);
 
     event NewWrapper(
-        address indexed underlyingToken,
+        bytes indexed underlyingToken,
         address indexed wrapper
     );
     
@@ -15,7 +15,7 @@ interface IBridgl {
         bytes indexed bridglAddress,
         address indexed underlyingToken,
         address from,
-        address to,
+        bytes to,
         uint256 amount,
         bytes32 messageId
     );
@@ -28,10 +28,10 @@ interface IBridgl {
     event SourceUnwrap(
         uint64 destinationChainSelector,
         bytes indexed bridglAddress,
-        address indexed underlyingToken,
+        bytes indexed underlyingToken,
         address indexed wrapper,
         address from,
-        address to,
+        bytes to,
         uint256 amount,
         bytes32 messageId
     );
@@ -48,14 +48,14 @@ interface IBridgl {
     struct WrapParams {
         string name;
         string symbol;
-        address underlyingToken;
-        address to;
+        bytes underlyingToken;
+        bytes to;
         uint256 amount;
     }
 
     struct UnwrapParams {
-        address underlyingToken;
-        address to;
+        bytes underlyingToken;
+        bytes to;
         uint256 amount;
     }
     
@@ -64,7 +64,7 @@ interface IBridgl {
         bytes memory bridglAddress,
         bytes memory extraArgs,
         address underlyingToken,
-        address to,
+        bytes memory to,
         uint256 amount
     ) external payable returns (bytes32 messageId);
 
@@ -72,8 +72,8 @@ interface IBridgl {
         uint64 destinationChainSelector,
         bytes memory bridglAddress,
         bytes memory extraArgs,
-        address underlyingToken,
-        address to,
+        bytes memory underlyingToken,
+        bytes memory to,
         uint256 amount
     ) external payable returns (bytes32 messageId);
 
@@ -82,6 +82,6 @@ interface IBridgl {
     function wrapper(
         uint64 chainSelector,
         bytes memory bridglAddress,
-        address underlyingToken
+        bytes memory underlyingToken
     ) external view returns (address);
 }
