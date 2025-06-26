@@ -153,6 +153,7 @@ export function unwrap(
 }
 */
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 async function evmCcipFee(
     publicClient: any,
     routerAddress: Address,
