@@ -17,7 +17,7 @@ export const ethSepolia: Network = {
     icon: "https://app.dynamic.xyz/assets/networks/eth.svg",
     chainSelector: BigInt("16015286601757825753"),
     ccipRouterAddress: "0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59",
-    bridglAddress: "0xD457DF15576a467276475c0A36CB356FDeDf428a",
+    bridglAddress: "0x5dF681bA036a3bFA9c65F0AEa1Bc8089f4FB80e7",
     viemChain: viemChains.sepolia,
 };
 
@@ -59,7 +59,7 @@ export const bnbTestnet: Network = {
     icon: "https://app.dynamic.xyz/assets/networks/bnb.svg",
     chainSelector: BigInt("13264668187771770619"),
     ccipRouterAddress: "0xE1053aE1857476f36A3C62580FF9b016E8EE8F6f",
-    bridglAddress: "0xD457DF15576a467276475c0A36CB356FDeDf428a",
+    bridglAddress: "0x5dF681bA036a3bFA9c65F0AEa1Bc8089f4FB80e7",
     viemChain: viemChains.bscTestnet,
 };
 
@@ -83,17 +83,16 @@ export const opSepolia: Network = {
     viemChain: viemChains.optimismSepolia
 };
 
-/*
+
 export const polAmoy: Network = {
     name: "Polygon Amoy",
     symbol: "POL",
     icon: "https://app.dynamic.xyz/assets/networks/polygon.svg",
     chainSelector: BigInt("16281711391670634445"),
     ccipRouterAddress: "0x9C32fCB86BF0f4a1A8921a9Fe46de3198bb884B2",
-    bridglAddress: "",
+    bridglAddress: "0x7531437fD063acC4a1b1401C1C61F85AFc120971",
     viemChain: viemChains.polygonAmoy,
 };
-*/
 
 export const testnets = new Map<bigint, Network>([
     [ethSepolia.chainSelector, ethSepolia],
@@ -103,5 +102,5 @@ export const testnets = new Map<bigint, Network>([
     [bnbTestnet.chainSelector, bnbTestnet],
     [arbSepolia.chainSelector, arbSepolia],
     [opSepolia.chainSelector, opSepolia],
-    //[polAmoy.chainSelector, polAmoy]
+    [polAmoy.chainSelector, polAmoy]
 ]);
