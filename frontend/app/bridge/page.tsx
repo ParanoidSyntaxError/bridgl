@@ -2,11 +2,15 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ChevronDown, ArrowDown } from "lucide-react"
-import { Network, testnets } from "@/lib/networks"
+import { Network, solDevnet, testnets } from "@/lib/networks"
 import Link from "next/link"
 import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core"
-import { wrap } from "@/lib/bridgl"
+import { unwrap, wrap } from "@/lib/bridgl"
 import { testnetTokens, Token } from "@/lib/tokens"
+import { isEthereumWallet } from "@dynamic-labs/ethereum"
+import { BridglWrapperAbi, IERC20Abi, IERC20MetadataAbi } from "@/abi"
+import { Address, decodeAbiParameters, parseUnits, zeroAddress } from "viem"
+import { ToastContainer, useToast } from "@/components/ui/toast"
 
 export default function BridgePage() {
     const { primaryWallet } = useDynamicContext();
@@ -19,6 +23,9 @@ export default function BridgePage() {
     const [showFromNetworks, setShowFromNetworks] = useState(false)
     const [showToNetworks, setShowToNetworks] = useState(false)
     const [showTokenDropdown, setShowTokenDropdown] = useState(false)
+
+    // Toast hook
+    const { toasts, removeToast, showSuccessToast, showErrorToast } = useToast();
 
     const fromNetworkRef = useRef<HTMLDivElement>(null)
     const toNetworkRef = useRef<HTMLDivElement>(null)
@@ -71,6 +78,7 @@ export default function BridgePage() {
         setShowTokenDropdown(false)
     }
 
+    const supportedNetworks = testnets.values().toArray().filter(network => network.chainSelector !== solDevnet.chainSelector);
     const defaultTokens = testnetTokens.get(fromNetwork?.chainSelector || BigInt("0")) || [];
 
     const isCustomAddress = tokenInput.startsWith("0x") && tokenInput.length > 10;
@@ -87,22 +95,96 @@ export default function BridgePage() {
                 return;
             }
 
-            const hash = await wrap(
-                primaryWallet,
-                fromNetwork,
-                toNetwork,
-                selectedToken,
-                primaryWallet.address,
-                amount
-            );
+            if (!isEthereumWallet(primaryWallet)) {
+                console.log("Not an EVM wallet");
+                return;
+            }
+
+            const publicClient = await primaryWallet.getPublicClient();
+
+            const [allowance, decimals] = await Promise.all([
+                publicClient.readContract({
+                    abi: IERC20Abi,
+                    functionName: "allowance",
+                    address: selectedToken as Address,
+                    args: [primaryWallet.address as Address, fromNetwork.bridglAddress as Address]
+                }),
+                publicClient.readContract({
+                    abi: IERC20MetadataAbi,
+                    functionName: "decimals",
+                    address: selectedToken as Address
+                })
+            ]);
+
+            const parsedAmount = parseUnits(amount, decimals);
+            if (parsedAmount > allowance) {
+                const provider = await primaryWallet.getWalletClient();
+                const hash = await provider.writeContract({
+                    chain: fromNetwork.viemChain,
+                    address: selectedToken as Address,
+                    abi: IERC20Abi,
+                    functionName: "approve",
+                    args: [fromNetwork.bridglAddress as Address, parsedAmount]
+                });
+                if (!hash) {
+                    console.log("Approve transaction failed");
+                    return;
+                }
+                console.log("Approve transaction hash:", hash);
+            }
+
+            let wrapperUnderlying;
+            try {
+                const wrapper = await publicClient.readContract({
+                    abi: BridglWrapperAbi,
+                    functionName: "underlying",
+                    address: selectedToken as Address
+                });
+                if (wrapper[1] !== zeroAddress) {
+                    console.log("Wrapper:", wrapper);
+                    wrapperUnderlying = decodeAbiParameters([{ type: "address" }], wrapper[1])[0];
+                }
+            } catch {}
+
+            let hash;
+            if (wrapperUnderlying) {
+                console.log("Unwrapping");
+                console.log("Wrapper underlying:", wrapperUnderlying);
+                hash = await unwrap(
+                    primaryWallet,
+                    fromNetwork,
+                    toNetwork,
+                    wrapperUnderlying,
+                    primaryWallet.address,
+                    parsedAmount
+                );
+            } else {
+                console.log("Wrapping");
+                hash = await wrap(
+                    primaryWallet,
+                    fromNetwork,
+                    toNetwork,
+                    selectedToken,
+                    primaryWallet.address,
+                    amount
+                );
+            }
             if (!hash) {
-                console.log("No hash");
+                console.log("Invalid transaction");
                 return;
             }
 
             console.log("Bridge transaction hash:", hash);
+
+            setTimeout(() => {
+                showSuccessToast("Success", `${fromNetwork.viemChain?.blockExplorers?.default.url}/tx/${hash}`)
+            }, 2000);
         } catch (error) {
             console.error("Bridge error:", error);
+
+            setTimeout(() => {
+                showErrorToast("Error", error as string)
+            }, 2000);
         }
     }
 
@@ -112,6 +194,9 @@ export default function BridgePage() {
 
     return (
         <div className="min-h-screen bg-white text-black relative overflow-hidden">
+            {/* Toast Container */}
+            <ToastContainer toasts={toasts} onClose={removeToast} />
+
             {/* Page Grid Background */}
             <div className="absolute inset-0 pointer-events-none opacity-5">
                 {/* Horizontal lines */}
@@ -178,10 +263,12 @@ export default function BridgePage() {
                                     </button>
                                     {showFromNetworks && (
                                         <div className="absolute h-36 overflow-y-scroll top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
-                                            {testnets.values().toArray().map((network, index) => (
+                                            {supportedNetworks.values().toArray().map((network, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => {
+                                                        setSelectedToken(null)
+                                                        setTokenInput("")
                                                         setFromNetwork(network)
                                                         setShowFromNetworks(false)
                                                     }}
@@ -294,7 +381,7 @@ export default function BridgePage() {
                                     </button>
                                     {showToNetworks && (
                                         <div className="absolute h-36 overflow-y-scroll top-full left-0 right-0 border-2 border-black bg-white z-50 mt-1 shadow-lg">
-                                            {testnets.values().toArray().map((network, index) => (
+                                            {supportedNetworks.values().toArray().map((network, index) => (
                                                 <button
                                                     key={index}
                                                     onClick={() => {

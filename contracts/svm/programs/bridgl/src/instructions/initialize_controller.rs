@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
+pub struct InitializeController<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
@@ -22,7 +22,7 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub(crate) fn handler(ctx: Context<Initialize>, router: Pubkey) -> Result<()> {
+pub(crate) fn handler(ctx: Context<InitializeController>, router: Pubkey) -> Result<()> {
     let controller = &mut ctx.accounts.controller;
 
     controller.bump = ctx.bumps.controller;

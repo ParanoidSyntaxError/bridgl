@@ -108,50 +108,91 @@ export async function wrap(
     }
 }
 
-/*
-export function unwrap(
-    sourceChainSelector: bigint,
-    destinationChainSelector: bigint,
-    underlyingToken: Address,
-    to: Address,
+export async function unwrap(
+    wallet: Wallet,
+    sourceNetwork: Network,
+    destinationNetwork: Network,
+    underlyingToken: string,
+    to: string,
     amount: bigint
-): Call | undefined {
+): Promise<Hex | undefined> {
     try {
-        const sourceNetwork = testnets.get(sourceChainSelector);
-        if (!sourceNetwork) {
+        if (!isEthereumWallet(wallet)) {
+            console.log("Not an EVM wallet");
             return undefined;
         }
 
-        const destinationNetwork = testnets.get(destinationChainSelector);
-        if (!destinationNetwork) {
+        const provider = await wallet.getWalletClient();
+        const publicClient = await wallet.getPublicClient();
+
+        if (!sourceNetwork.viemChain || !destinationNetwork.viemChain) {
+            console.log("Invalid network");
             return undefined;
         }
 
-        const extraArgs = "0x00";
+        if (provider.chain.id !== sourceNetwork.viemChain.id) {
+            console.log("Invalid network");
+            return undefined;
+        }
 
-        const data = encodeFunctionData({
+        if(!isAddress(underlyingToken)) {
+            console.log("Invalid underlying token");
+            return undefined;
+        }
+        if(!isAddress(to)) {
+            console.log("Invalid to address");
+            return undefined;
+        }
+
+        const data = encodeWrapMessage(
+            "",
+            "",
+            underlyingToken,
+            to,
+            amount
+        );
+
+        const extraArgs: EVMExtraArgsV2 = {
+            gasLimit: 1_000_000,
+            allowOutOfOrderExecution: true
+        };
+        const extraArgsEncoded = encodeEvmExtraArgsV2(extraArgs);
+
+        const ccipFee = await evmCcipFee(
+            publicClient,
+            sourceNetwork.ccipRouterAddress as Address,
+            destinationNetwork.chainSelector,
+            destinationNetwork.bridglAddress as Address,
+            data,
+            extraArgs
+        );
+        if (!ccipFee) {
+            console.log("Invalid CCIP fee");
+            return undefined;
+        }
+
+        const hash = await provider.writeContract({
+            chain: sourceNetwork.viemChain,
+            address: sourceNetwork.bridglAddress as Address,
             abi: BridglAbi,
             functionName: "unwrap",
             args: [
-                destinationChainSelector,
-                destinationNetwork.bridglAddress,
-                extraArgs,
-                underlyingToken,
-                to,
+                destinationNetwork.chainSelector,
+                encodeAbiParameters([{ type: "address" }], [destinationNetwork.bridglAddress as Address]),
+                extraArgsEncoded,
+                encodeAbiParameters([{ type: "address" }], [underlyingToken as Address]),
+                encodeAbiParameters([{ type: "address" }], [to as Address]),
                 amount
-            ]
+            ],
+            value: ccipFee
         });
 
-        return {
-            to: sourceNetwork.bridglAddress,
-            data: data
-        };
+        return hash;
     } catch (error) {
         console.error(error);
         return undefined;
     }
 }
-*/
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 async function evmCcipFee(
@@ -170,7 +211,7 @@ async function evmCcipFee(
             destinationChainSelector: destinationChainSelector.toString(),
             data: data,
             extraArgs: extraArgs
-        });
+        }) * BigInt("2");
     } catch (error) {
         console.error(error);
         return undefined;

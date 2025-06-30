@@ -1,21 +1,23 @@
 use anchor_lang::prelude::*;
 
 use anchor_spl::{
-    token::Token, 
-    token_interface::Mint
+    token::{self, Token},
+    token_interface::{Mint, TokenAccount}
+};
+
+use solabi::{
+    decode::decode,
+    encode::encode,
 };
 
 use crate::{
-    ID,
     constants::{
         ALLOWED_OFFRAMP, CONTROLLER_SEED, EXTERNAL_EXECUTION_CONFIG_SEED,
         MAX_MESSAGE_DATA_SIZE, MAX_SENDER_ADDRESS_SIZE, WRAPPER_SEED,
-    },
-    state::{Any2SVMMessage, Controller},
-    error::BridglError,
+    }, error::BridglError, state::{Any2SVMMessage, Controller, UnwrapParams, WrapParams}, wrap, ID
 };
 
-#[derive(Accounts, Debug)]
+#[derive(Accounts)]
 #[instruction(message: Any2SVMMessage)]
 pub struct CcipReceive<'info> {
     /// The authority PDA from the offramp program that must sign the transaction
@@ -56,38 +58,133 @@ pub struct CcipReceive<'info> {
     )]
     pub controller: Account<'info, Controller>,
 
-    /*
-    #[account(
-        init_if_needed,
-        seeds = [
-            WRAPPER_SEED,
-            message.source_chain_selector.to_le_bytes().as_ref(),
-            message.sender.as_ref(),
-        ],
-        bump,
-        payer = authority,
-        mint::authority = controller,
-    )]
-    pub wrapper: Account<'info, Mint>,
+    #[account(mut)]
+    pub vault: InterfaceAccount<'info, TokenAccount>,
 
-    pub system_program: Program<'info, System>,
+    #[account(mut)]
+    pub mint: InterfaceAccount<'info, Mint>,
+
+    #[account(
+        mut,
+        constraint = to.mint == mint.key() @ BridglError::InvalidToAccount,
+    )]
+    pub to: InterfaceAccount<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
-    */
 }
 
-pub(crate) fn handler(ctx: Context<CcipReceive>, message: Any2SVMMessage) -> Result<()> {
+pub(crate) fn handler(
+    ctx: Context<CcipReceive>,
+    message: Any2SVMMessage,
+) -> Result<()> {
     // Validate data size against the maximum allowed
     if message.data.len() > MAX_MESSAGE_DATA_SIZE {
-        msg!("Error: Message data size ({}) exceeds maximum allowed ({})", 
-             message.data.len(), MAX_MESSAGE_DATA_SIZE);
+        msg!(
+            "Error: Message data size ({}) exceeds maximum allowed ({})",
+            message.data.len(), 
+            MAX_MESSAGE_DATA_SIZE
+        );
         return Err(BridglError::MessageDataTooLarge.into());
     }
     // Validate sender address size against the maximum allowed
     if message.sender.len() > MAX_SENDER_ADDRESS_SIZE {
-        msg!("Error: Sender address size ({}) exceeds maximum allowed ({})", 
-             message.sender.len(), MAX_SENDER_ADDRESS_SIZE);
+        msg!(
+            "Error: Sender address size ({}) exceeds maximum allowed ({})", 
+            message.sender.len(), 
+            MAX_SENDER_ADDRESS_SIZE
+        );
         return Err(BridglError::SenderAddressTooLarge.into());
+    }
+
+    let selector = message.data[0];
+    let data = &message.data[1..];
+
+    let controller_signer_seeds: &[&[&[u8]]] = &[&[CONTROLLER_SEED, &[ctx.accounts.controller.bump]]];
+
+    match selector {
+        0 => {
+            // Wrap
+            let params = decode::<WrapParams>(data).map_err(|e| {
+                msg!("Error: Invalid message data ({:?})", e);
+                BridglError::InvalidMessageData
+            })?;
+
+            let (wrapper, _) = Pubkey::find_program_address(&[
+                WRAPPER_SEED,
+                &message.source_chain_selector.to_le_bytes(),
+                message.sender.as_ref(),
+                params.underlying_token.as_ref(),
+            ], ctx.program_id);
+
+            if wrapper != ctx.accounts.mint.key() {
+                msg!("Error: Invalid wrapper mint ({:?})", wrapper);
+                return Err(BridglError::InvalidWrapperMint.into());
+            }
+
+            if params.to != ctx.accounts.to.key().to_bytes() {
+                msg!("Error: decoded `to` address does not match provided account");
+                return Err(BridglError::InvalidToAccount.into());
+            }
+
+            let amount: u64 = params.amount.try_into().map_err(|_| {
+                msg!("Error: Amount too large for u64");
+                BridglError::TooManyTokens
+            })?;
+
+            token::mint_to(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(),
+                    token::MintTo {
+                        mint: ctx.accounts.mint.to_account_info(),
+                        to: ctx.accounts.to.to_account_info(),
+                        authority: ctx.accounts.controller.to_account_info(),
+                    },
+                    controller_signer_seeds
+                ),
+                amount,
+            )?;
+        }
+        1 => {
+            // Unwrap
+            let params = decode::<UnwrapParams>(data).map_err(|e| {
+                msg!("Error: Invalid message data ({:?})", e);
+                BridglError::InvalidMessageData
+            })?;
+
+            if params.underlying_token != ctx.accounts.mint.key().to_bytes() {
+                msg!("Error: Invalid underlying token ({:?})", params.underlying_token);
+                return Err(BridglError::InvalidUnderlyingToken.into());
+            }
+
+            if params.to != ctx.accounts.to.key().to_bytes() {
+                msg!("Error: decoded `to` address does not match provided account");
+                return Err(BridglError::InvalidToAccount.into());
+            }
+
+            let amount: u64 = params.amount.try_into().map_err(|_| {
+                msg!("Error: Amount too large for u64");
+                BridglError::TooManyTokens
+            })?;
+
+            token::transfer_checked(
+                CpiContext::new_with_signer(
+                    ctx.accounts.token_program.to_account_info(), 
+                    token::TransferChecked {
+                        from: ctx.accounts.vault.to_account_info(),
+                        to: ctx.accounts.to.to_account_info(),
+                        authority: ctx.accounts.controller.to_account_info(),
+                        mint: ctx.accounts.mint.to_account_info(),
+                    }, 
+                    controller_signer_seeds
+                ), 
+                amount, 
+                ctx.accounts.mint.decimals
+            )?;
+        }
+        _ => {
+            msg!("Error: Invalid message selector ({})", selector);
+            return Err(BridglError::InvalidMessageSelector.into());
+        }
     }
 
     Ok(())

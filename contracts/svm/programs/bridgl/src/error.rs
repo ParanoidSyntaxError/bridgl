@@ -34,4 +34,22 @@ pub enum BridglError {
     /// Error when the sender address exceeds the maximum allowed size for this receiver
     #[msg("Sender address exceeds the maximum allowed size for this receiver")]
     SenderAddressTooLarge,
+
+    #[msg("Invalid message selector")]
+    InvalidMessageSelector,
+
+    #[msg("Invalid message data")]
+    InvalidMessageData,
+
+    #[msg("Invalid wrapper mint")]
+    InvalidWrapperMint,
+
+    #[msg("Invalid underlying token")]
+    InvalidUnderlyingToken,
+
+    #[msg("Invalid to account")]
+    InvalidToAccount,
+
+    #[msg("Invalid CCIP router")]
+    InvalidCcipRouter,
 }

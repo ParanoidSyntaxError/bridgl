@@ -21,17 +21,15 @@ export const ethSepolia: Network = {
     viemChain: viemChains.sepolia,
 };
 
-/*
 export const solDevnet: Network = {
     name: "Solana Devnet",
     symbol: "SOL",
     icon: "https://app.dynamic.xyz/assets/networks/solana.svg",
     chainSelector: BigInt("16423721717087811551"),
     ccipRouterAddress: "Ccip842gzYHhvdDkSyi2YVCoAWPbYJoApMFzSxQroE9C",
-    bridglAddress: "",
+    bridglAddress: "2gjEcWRLgE8JvcJR2gu5ZQHibUnmTiVwnY6c6jMFsjxU",
     viemChain: undefined,
 };
-*/
 
 export const baseSepolia: Network = {
     name: "Base Sepolia",
@@ -96,7 +94,7 @@ export const polAmoy: Network = {
 
 export const testnets = new Map<bigint, Network>([
     [ethSepolia.chainSelector, ethSepolia],
-    //[solDevnet.chainSelector, solDevnet],
+    [solDevnet.chainSelector, solDevnet],
     [baseSepolia.chainSelector, baseSepolia],
     [avaxFuji.chainSelector, avaxFuji],
     [bnbTestnet.chainSelector, bnbTestnet],

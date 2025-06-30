@@ -13,5 +13,5 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub const SPACE: usize = ANCHOR_DISCRIMINATOR + size_of::<&Self>();
+    pub const SPACE: usize = ANCHOR_DISCRIMINATOR + size_of::<Self>();
 }

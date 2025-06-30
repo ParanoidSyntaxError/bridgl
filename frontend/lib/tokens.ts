@@ -1,4 +1,4 @@
-import { arbSepolia, avaxFuji, bnbTestnet, baseSepolia, ethSepolia, opSepolia } from "./networks";
+import { arbSepolia, avaxFuji, bnbTestnet, baseSepolia, ethSepolia, opSepolia, solDevnet, polAmoy } from "./networks";
 
 export interface TokenMetadata {
     name: string;
@@ -14,6 +14,11 @@ export const wethMetadata: TokenMetadata = {
     symbol: "WETH",
 }
 
+export const wsolMetadata: TokenMetadata = {
+    name: "WSOL",
+    symbol: "WSOL",
+}
+
 export const wavaxMetadata: TokenMetadata = {
     name: "WAVAX",
     symbol: "WAVAX",
@@ -24,29 +29,25 @@ export const wbnbMetadata: TokenMetadata = {
     symbol: "WBNB",
 }
 
+export const wmaticMetadata: TokenMetadata = {
+    name: "WMATIC",
+    symbol: "WMATIC",
+}
+
 export const linkMetadata: TokenMetadata = {
     name: "Chainlink",
     symbol: "LINK",
 }
-
-/*
-export const usdcMetadata: TokenMetadata = {
-    name: "USDC",
-    symbol: "USDC",
-}
-
-export const usdtMetadata: TokenMetadata = {
-    name: "Tether",
-    symbol: "USDT",
-}
-*/
 
 export const testnetTokens = new Map<bigint, Token[]>([
     [ethSepolia.chainSelector, [
         {...wethMetadata, address: "0x097D90c9d3E0B50Ca60e1ae45F6A81010f9FB534"},
         {...linkMetadata, address: "0x779877A7B0D9E8603169DdbD7836e478b4624789"},
     ]],
-    //sol
+    [solDevnet.chainSelector, [
+        {...wsolMetadata, address: "So11111111111111111111111111111111111111112"},
+        {...linkMetadata, address: "LinkhB3afbBKb2EQQu7s7umdZceV3wcvAUJhQAfQ23L"},
+    ]],
     [baseSepolia.chainSelector, [
         {...wethMetadata, address: "0x4200000000000000000000000000000000000006"},
         {...linkMetadata, address: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410"},
@@ -67,5 +68,8 @@ export const testnetTokens = new Map<bigint, Token[]>([
         {...wethMetadata, address: "0x4200000000000000000000000000000000000006"},
         {...linkMetadata, address: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410"},
     ]],
-    //pol
+    [polAmoy.chainSelector, [
+        {...wmaticMetadata, address: "0x360ad4f9a9A8EFe9A8DCB5f461c4Cc1047E1Dcf9"},
+        {...linkMetadata, address: "0x0Fd9e8d3aF1aaee056EB9e802c3A762a667b1904"},
+    ]],
 ]);
