@@ -1,0 +1,3 @@
+[submodule "chainlink-ccip"]
+	path = chainlink-ccip
+	url = https://github.com/smartcontractkit/chainlink-ccip.git
